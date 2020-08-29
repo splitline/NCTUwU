@@ -43,11 +43,11 @@ nav {
 .timetable .period span {
     display: block;
     display: -webkit-box;
-    max-width: 120px;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+    word-wrap: break-word;
 }
 
 .timetable .week-names {
@@ -121,12 +121,68 @@ nav {
     padding: 0.5em 2.5em 0.5em 0.5em;
 }
 
+.course-panel>.course #name {
+    cursor: pointer;
+}
+
 .course-panel>.course>button {
     position: absolute;
     right: 1em;
     margin: 0 auto;
 }
 
+.modal-launcher *,
 button * {
     pointer-events: none;
+}
+
+
+/* animate.css */
+@keyframes backInDown {
+    0% {
+        transform: translateY(-1200px) scale(0.7);
+        opacity: 0.7;
+    }
+
+    80% {
+        transform: translateY(0px) scale(0.7);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.is-active .modal-content {
+    animation-name: backInDown;
+    animation-duration: 0.5s;
+}
+
+.dl-horizontal {
+    font-size: 0;
+    text-align: center;
+}
+
+.dl-horizontal dt,
+.dl-horizontal dd {
+    width: 48%;
+    width: calc(50% - 10px);
+    margin: 8px 0;
+    display: inline-block;
+    font-size: 16px;
+    vertical-align: middle;
+}
+
+.dl-horizontal dt {
+    text-align: right;
+    padding-right: 10px;
+}
+
+.dl-horizontal dd {
+    font-size: 18px;
+    font-weight: 300;
+    text-align: left;
+    padding-left: 10px;
 }

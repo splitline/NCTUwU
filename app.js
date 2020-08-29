@@ -17,7 +17,7 @@ const TIME_MAPPING = {
     "L": "21:30 ~ 22:20"
 }
 
-const SEMESTER = '1091';
+const YEAR = '109', SEMESTER = '1';
 
 let courseData = {};
 let selectedCourse = {};
@@ -39,12 +39,12 @@ window.onload = () => {
     });
 
     // Fetch course data.
-    fetch(`course-data/${SEMESTER}-data.json`)
+    fetch(`course-data/${YEAR}${SEMESTER}-data.json`)
         .then(r => r.json())
         .then(data => {
             courseData = data;
             selectedCourse = JSON.parse(localStorage.getItem("selectedCourse")) || {};
-            for(courseId in selectedCourse) {
+            for (courseId in selectedCourse) {
                 const course = selectedCourse[courseId] = courseData[courseId]; // Update data.
                 renderPeriodBlock(course);
                 appendCourseElement(course);
@@ -53,17 +53,35 @@ window.onload = () => {
 }
 
 document.addEventListener("click", function (event) {
+    console.log(event.target)
     if (event.target.classList.contains('toggle-course'))
-        toggleCourse(event.target.id.split("-")[1]);
+        toggleCourse(event.target.parentNode.id.split("-")[1]);
+
+    if (event.target.classList.contains('modal-launcher'))
+        toggleModal(event.target.closest('.course,.period').id.split("-")[1]);
 })
+
+function toggleModal(courseId) {
+    const modal = document.querySelector('.modal');
+    modal.classList.toggle('is-active');
+    const data = courseData[courseId];
+    const fields = modal.querySelectorAll('dd');
+    fields[0].textContent = data.id;
+    fields[1].textContent = data.credit;
+    fields[2].textContent = data.teacher;
+    fields[3].textContent = data.time;
+
+    modal.querySelector('.card-header-title').textContent = data.name;
+    modal.querySelector('#outline').href = `https://timetable.nctu.edu.tw/?r=main/crsoutline&Acy=${YEAR}&Sem=${SEMESTER}&CrsNo=${courseId}&lang=zh-tw`;
+}
 
 function appendCourseElement(course, search = false) {
     const template = document.getElementById("courseTemplate");
     template.content.querySelector(".tag").textContent = course.id;
     template.content.getElementById("name").textContent = course.name;
     template.content.getElementById("detail").textContent = `${course.teacher}・${+course.credit} 學分`;
-    template.content.querySelector("button").id = `course-${course.id}`;
-    
+    template.content.querySelector(".course").id = `course-${course.id}`;
+
     template.content.querySelector("button").classList.toggle('is-danger', course.id in selectedCourse)
     template.content.querySelector("i").classList.toggle('fa-times', course.id in selectedCourse)
 
@@ -74,40 +92,33 @@ function appendCourseElement(course, search = false) {
 function search(searchTerm) {
     if (!searchTerm) return [];
 
-    let result = [];
-    const courseId = `${SEMESTER}_${searchTerm}`;
-    if (courseId in courseData)
-        result.push(courseData[courseId]);
-
-    const otherResult = Object.values(courseData)
+    const result = Object.values(courseData)
         .filter(course => (
             (course.id != searchTerm && course.id.match(searchTerm)) ||
             course.teacher.match(searchTerm) ||
             course.name.match(searchTerm)
         ))
         .slice(0, 50);
-    result = result.concat(otherResult);
+
     return result;
 }
 
 function toggleCourse(courseId) {
+    const icon = document.querySelector(`#course-${courseId} .toggle-icon`);
+    const button = document.querySelector(`#course-${courseId} button`);
     if (courseId in selectedCourse) { // Remove course
         delete selectedCourse[courseId];
 
-        document.querySelector(`.selected #course-${courseId}`).parentNode.remove();
+        document.querySelector(`.selected #course-${courseId}`).remove();
         document.querySelectorAll(`#timetable-${courseId}`).forEach(elem => elem.remove());
-        const icon = document.querySelector(`#course-${courseId} .fa-times`);
         icon?.classList.replace('fa-times', 'fa-plus');
-        const button = document.querySelector(`#course-${courseId}`);
         button?.classList.remove('is-danger');
     } else { // Select course
         selectedCourse[courseId] = courseData[courseId];
 
         appendCourseElement(courseData[courseId]);
         renderPeriodBlock(courseData[courseId]);
-        const icon = document.querySelector(`#course-${courseId} .fa-plus`);
         icon?.classList.replace('fa-plus', 'fa-times');
-        const button = document.querySelector(`#course-${courseId}`);
         button?.classList.add('is-danger');
     }
 
@@ -126,7 +137,7 @@ function parseTime(timeCode) {
 function renderPeriodBlock(course) {
     const periods = parseTime(course.time);
     periods.forEach(period => document.getElementById(period).innerHTML = `
-    <div id="timetable-${course.id}" class="period">
+    <div id="timetable-${course.id}" class="period modal-launcher">
         <span class="has-text-grey">${course.name}</span>
     </div>`);
 }
@@ -138,3 +149,8 @@ document.querySelector(".input").oninput = event => {
 
     result.forEach(course => appendCourseElement(course, true));
 }
+
+
+
+document.querySelector('.modal-background').onclick =
+    document.querySelector('.card-header-icon').onclick = toggleModal;

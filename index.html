@@ -25,7 +25,7 @@
             <div class="column is-one-quarter">
                 <div class="field">
                     <p class="control has-icons-left has-icons-right">
-                        <input class="input" type="text" placeholder="Search">
+                        <input class="input" type="text" placeholder="課號 / 課名 / 老師">
                         <span class="icon is-small is-left">
                             <i class="fas fa-search"></i>
                         </span>
@@ -58,18 +58,50 @@
     <template id="courseTemplate">
         <div class="course">
             <p>
-                <b id="name"></b>
+                <b class="modal-launcher" id="name"></b>
                 <span class="tag is-primary is-rounded"></span>
             </p>
             <p id="detail"></p>
             <button class="button is-small toggle-course">
                 <span class="icon">
-                    <i class="fas fa-plus"></i>
+                    <i class="toggle-icon fas fa-plus"></i>
                 </span>
             </button>
         </div>
     </template>
 
+    <div class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title"></p>
+                    <a href="#" class="card-header-icon">
+                        <span class="icon">
+                            <i class="fas fa-times" aria-hidden="true"></i>
+                        </span>
+                    </a>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        <dl class="dl-horizontal">
+                            <dt>課號</dt>
+                            <dd></dd>
+                            <dt>學分</dt>
+                            <dd></dd>
+                            <dt>教師</dt>
+                            <dd></dd>
+                            <dt>上課時間 / 教室</dt>
+                            <dd></dd>
+                        </dl>
+                    </div>
+                </div>
+                <footer class="card-footer">
+                    <a href="#" target="_blank" id="outline" class="card-footer-item">課程綱要</a>
+                </footer>
+            </div>
+        </div>
+    </div>
     <script src="app.js"></script>
 </body>
 
