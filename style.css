@@ -19,14 +19,14 @@ nav {
     display: grid;
     grid-template-areas: ". week""time content";
     grid-template-columns: 120px;
-    grid-template-rows: 60px;
+    grid-template-rows: auto;
 }
 
 .timetable .period {
     cursor: pointer;
+    display: block;
     background-color: #f9f9f9;
     padding: 0.5em;
-    display: block;
     width: 100%;
     height: 100%;
     -webkit-transition: .2s ease box-shadow, .2s ease transform;
@@ -40,11 +40,14 @@ nav {
     z-index: 100;
 }
 
-.period span {
-    min-width: 0;
+.timetable .period span {
+    display: block;
+    display: -webkit-box;
+    max-width: 120px;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    -webkit-line-clamp: 2;
 }
 
 .timetable .week-names {

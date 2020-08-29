@@ -1,5 +1,3 @@
-const COLORS = ['pink', 'orange', 'green', 'cyan', 'blue', 'purple'];
-
 const TIME_MAPPING = {
     "M": "6:00 ~ 6:50",
     "N": "7:00 ~ 7:50",
