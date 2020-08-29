@@ -43,7 +43,15 @@ window.onload = () => {
     // Fetch course data.
     fetch(`course-data/${SEMESTER}-data.json`)
         .then(r => r.json())
-        .then(data => (courseData = data));
+        .then(data => {
+            courseData = data;
+            selectedCourse = JSON.parse(localStorage.getItem("selectedCourse")) || {};
+            for(courseId in selectedCourse) {
+                const course = selectedCourse[courseId] = courseData[courseId]; // Update data.
+                renderPeriodBlock(course);
+                appendCourseElement(course);
+            }
+        });
 }
 
 document.addEventListener("click", function (event) {
@@ -91,19 +99,21 @@ function toggleCourse(courseId) {
         document.querySelector(`.selected #course-${courseId}`).parentNode.remove();
         document.querySelectorAll(`#timetable-${courseId}`).forEach(elem => elem.remove());
         const icon = document.querySelector(`#course-${courseId} .fa-times`);
-        icon.classList.replace('fa-times', 'fa-plus');
+        icon?.classList.replace('fa-times', 'fa-plus');
         const button = document.querySelector(`#course-${courseId}`);
-        button.classList.remove('is-danger');
+        button?.classList.remove('is-danger');
     } else { // Select course
         selectedCourse[courseId] = courseData[courseId];
 
         appendCourseElement(courseData[courseId]);
         renderPeriodBlock(courseData[courseId]);
         const icon = document.querySelector(`#course-${courseId} .fa-plus`);
-        icon.classList.replace('fa-plus', 'fa-times');
+        icon?.classList.replace('fa-plus', 'fa-times');
         const button = document.querySelector(`#course-${courseId}`);
-        button.classList.add('is-danger');
+        button?.classList.add('is-danger');
     }
+
+    localStorage.setItem("selectedCourse", JSON.stringify(selectedCourse));
 }
 
 function parseTime(timeCode) {
