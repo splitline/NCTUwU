@@ -13,6 +13,10 @@ nav {
     margin-bottom: 1em;
 }
 
+.column {
+    overflow-x: scroll;
+}
+
 .timetable {
     box-shadow: 0 0 10px #ECEFF1;
     padding: 0.25em;
@@ -20,6 +24,7 @@ nav {
     grid-template-areas: ". week""time content";
     grid-template-columns: 120px;
     grid-template-rows: auto;
+    width: max-content;
 }
 
 .timetable .period {
@@ -28,6 +33,7 @@ nav {
     background-color: #f9f9f9;
     padding: 0.5em;
     width: 100%;
+    max-width: 120px;
     height: 100%;
     -webkit-transition: .2s ease box-shadow, .2s ease transform;
     transition: .2s ease box-shadow, .2s ease transform;
