@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <nav class="navbar is-primary" role="navigation">
+        <div class="container">
+            <div class="navbar-brand">
+                <a class="navbar-item">
+                    <p>NCTUwU</p>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="columns">
+            <div class="column is-one-quarter">
+                <div class="field">
+                    <p class="control has-icons-left has-icons-right">
+                        <input class="input" type="text" placeholder="Search">
+                        <span class="icon is-small is-left">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </p>
+                </div>
+                <div class="result">
+                </div>
+            </div>
+            <div class="column">
+                <div class="timetable container">
+                    <div class="week-names">
+                        <div>monday</div>
+                        <div>tuesday</div>
+                        <div>wednesday</div>
+                        <div>thursday</div>
+                        <div>friday</div>
+                        <div>saturday</div>
+                        <div>sunday</div>
+                    </div>
+                    <div class="time-interval">
+                    </div>
+                    <div class="content">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <template id="courseTemplate">
+        <div class="course">
+            <p><b id="name"></b></p>
+            <p id="detail"></p>
+            <button class="button is-small">
+                <span class="icon">
+                    <i class="fas fa-plus"></i>
+                </span>
+            </button>
+        </div>
+    </template>
+    <script src="app.js"></script>
+</body>
+
+</html>
