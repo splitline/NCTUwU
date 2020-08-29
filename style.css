@@ -24,8 +24,8 @@ nav {
     grid-template-areas: ". week""time content";
     grid-template-columns: 120px;
     grid-template-rows: auto;
-    width: max-content;
 }
+
 
 .timetable .period {
     cursor: pointer;
@@ -105,6 +105,7 @@ nav {
 
 
 .timetable .content>div {
+    min-width: 120px;
     box-shadow: inset 1px 0 0 #ECEFF1, inset 0 1px 0 0 #ECEFF1;
 }
 
