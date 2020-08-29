@@ -42,3 +42,38 @@ window.onload = () => {
         .then(r => r.json())
         .then(data => (courseData = data));
 }
+
+function search(searchTerm) {
+    if (!searchTerm) return [];
+
+    let result = [];
+    const courseId = `${SEMESTER}_${searchTerm}`;
+    if (courseId in courseData)
+        result.push(courseData[courseId]);
+
+    const otherResult = Object.values(courseData)
+        .filter(course => (
+            (course.id != searchTerm && course.id.match(searchTerm)) ||
+            course.teacher.match(searchTerm) ||
+            course.name.match(searchTerm)
+        ))
+        .slice(0, 50);
+    result = result.concat(otherResult);
+    return result;
+}
+
+document.querySelector(".input").oninput = event => {
+    document.querySelector(".result").innerHTML = '';
+    const searchTerm = event.target.value.trim();
+    const result = search(searchTerm);
+
+    result.forEach(course => {
+        const template = document.getElementById("courseTemplate");
+        template.content.querySelector(".tag").textContent = course.id;
+        template.content.getElementById("name").textContent = course.name;
+        template.content.getElementById("detail").textContent = `${course.teacher}・${course.credit} 學分`;
+
+        const clone = document.importNode(template.content, true);
+        document.querySelector(".result").appendChild(clone);
+    });
+}
