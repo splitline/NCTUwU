@@ -123,11 +123,12 @@ function appendCourseElement(course, search = false) {
 function search(searchTerm) {
     if (!searchTerm) return [];
 
+    const regex = RegExp(searchTerm, 'i');
     const result = Object.values(courseData)
         .filter(course => (
-            (course.id != searchTerm && course.id.match(searchTerm)) ||
-            course.teacher.match(searchTerm) ||
-            course.name.match(searchTerm)
+            (course.id != searchTerm && course.id.match(regex)) ||
+            course.teacher.match(regex) ||
+            course.name.match(regex)
         ))
         .slice(0, 50);
 
@@ -146,7 +147,8 @@ function toggleCourse(courseId) {
         button?.classList.remove('is-danger');
     } else { // Select course
         const periods = parseTime(courseData[courseId].time);
-        if (periods.some(period => document.getElementById(period).childElementCount)) {
+        const isConflict = periods.some(period => document.getElementById(period).childElementCount)
+        if (isConflict) {
             alert('衝堂了欸')
             return;
         }
