@@ -1,3 +1,5 @@
+const COLORS = ['pink', 'orange', 'green', 'cyan', 'blue', 'purple'];
+
 const TIME_MAPPING = {
     "M": "6:00 ~ 6:50",
     "N": "7:00 ~ 7:50",
@@ -20,27 +22,47 @@ const TIME_MAPPING = {
 const SEMESTER = '1091';
 
 let courseData = {};
+let selectedCourse = {};
 
 window.onload = () => {
     // Generate timetable.
-
     Object.keys(TIME_MAPPING).forEach(period => {
         const div = document.createElement("div");
         div.textContent = `${period} / ${TIME_MAPPING[period]}`;
         document.querySelector(".time-interval").appendChild(div);
     });
 
-    for (let day = 1; day <= 7; ++day) {
-        Object.keys(TIME_MAPPING).forEach(period => {
+    Object.keys(TIME_MAPPING).forEach(period => {
+        for (let day = 1; day <= 7; ++day) {
             const div = document.createElement("div");
             div.id = `${day}${period}`;
             document.querySelector('.content').appendChild(div);
-        });
-    }
+        }
+    });
 
+    // Fetch course data.
     fetch(`course-data/${SEMESTER}-data.json`)
         .then(r => r.json())
         .then(data => (courseData = data));
+}
+
+document.addEventListener("click", function (event) {
+    if (event.target.classList.contains('toggle-course'))
+        toggleCourse(event.target.id.split("-")[1]);
+})
+
+function appendCourseElement(course, search = false) {
+    const template = document.getElementById("courseTemplate");
+    template.content.querySelector(".tag").textContent = course.id;
+    template.content.getElementById("name").textContent = course.name;
+    template.content.getElementById("detail").textContent = `${course.teacher}・${+course.credit} 學分`;
+    template.content.querySelector("button").id = `course-${course.id}`;
+    
+    template.content.querySelector("button").classList.toggle('is-danger', course.id in selectedCourse)
+    template.content.querySelector("i").classList.toggle('fa-times', course.id in selectedCourse)
+
+    const clone = document.importNode(template.content, true);
+    document.querySelector(search ? ".result" : ".selected").appendChild(clone);
 }
 
 function search(searchTerm) {
@@ -62,18 +84,49 @@ function search(searchTerm) {
     return result;
 }
 
+function toggleCourse(courseId) {
+    if (courseId in selectedCourse) { // Remove course
+        delete selectedCourse[courseId];
+
+        document.querySelector(`.selected #course-${courseId}`).parentNode.remove();
+        document.querySelectorAll(`#timetable-${courseId}`).forEach(elem => elem.remove());
+        const icon = document.querySelector(`#course-${courseId} .fa-times`);
+        icon.classList.replace('fa-times', 'fa-plus');
+        const button = document.querySelector(`#course-${courseId}`);
+        button.classList.remove('is-danger');
+    } else { // Select course
+        selectedCourse[courseId] = courseData[courseId];
+
+        appendCourseElement(courseData[courseId]);
+        renderPeriodBlock(courseData[courseId]);
+        const icon = document.querySelector(`#course-${courseId} .fa-plus`);
+        icon.classList.replace('fa-plus', 'fa-times');
+        const button = document.querySelector(`#course-${courseId}`);
+        button.classList.add('is-danger');
+    }
+}
+
+function parseTime(timeCode) {
+    const timeList = timeCode.match(/[1-7][A-Z]+/g);
+    const result = timeList.map(
+        code => [...code].map(char => `${code[0]}${char}`).slice(1)
+    ).flat();
+
+    return result;
+}
+
+function renderPeriodBlock(course) {
+    const periods = parseTime(course.time);
+    periods.forEach(period => document.getElementById(period).innerHTML = `
+    <div id="timetable-${course.id}" class="period">
+        <span class="has-text-grey">${course.name}</span>
+    </div>`);
+}
+
 document.querySelector(".input").oninput = event => {
     document.querySelector(".result").innerHTML = '';
     const searchTerm = event.target.value.trim();
     const result = search(searchTerm);
 
-    result.forEach(course => {
-        const template = document.getElementById("courseTemplate");
-        template.content.querySelector(".tag").textContent = course.id;
-        template.content.getElementById("name").textContent = course.name;
-        template.content.getElementById("detail").textContent = `${course.teacher}・${course.credit} 學分`;
-
-        const clone = document.importNode(template.content, true);
-        document.querySelector(".result").appendChild(clone);
-    });
+    result.forEach(course => appendCourseElement(course, true));
 }

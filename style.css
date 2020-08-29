@@ -22,100 +22,30 @@ nav {
     grid-template-rows: 60px;
 }
 
-.timetable .accent-pink-gradient {
-    display: -webkit-box;
-    display: flex;
+.timetable .period {
+    cursor: pointer;
+    background-color: #f9f9f9;
+    padding: 0.5em;
+    color: white;
+    display: block;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #ee8ebc, #eea08e);
     -webkit-transition: .2s ease box-shadow, .2s ease transform;
     transition: .2s ease box-shadow, .2s ease transform;
 }
 
-.timetable .accent-pink-gradient:hover {
+.timetable .period:hover {
     box-shadow: 0 20px 30px 0 rgba(238, 142, 188, 0.3);
     -webkit-transform: scale(1.05);
     transform: scale(1.05);
+    z-index: 100;
 }
 
-.timetable .accent-orange-gradient {
-    display: -webkit-box;
-    display: flex;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #eec08e, #dcee8e);
-    -webkit-transition: .2s ease box-shadow, .2s ease transform;
-    transition: .2s ease box-shadow, .2s ease transform;
-}
-
-.timetable .accent-orange-gradient:hover {
-    box-shadow: 0 20px 30px 0 rgba(238, 192, 142, 0.3);
-    -webkit-transform: scale(1.05);
-    transform: scale(1.05);
-}
-
-.timetable .accent-green-gradient {
-    display: -webkit-box;
-    display: flex;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #bcee8e, #8eeea0);
-    -webkit-transition: .2s ease box-shadow, .2s ease transform;
-    transition: .2s ease box-shadow, .2s ease transform;
-}
-
-.timetable .accent-green-gradient:hover {
-    box-shadow: 0 20px 30px 0 rgba(188, 238, 142, 0.3);
-    -webkit-transform: scale(1.05);
-    transform: scale(1.05);
-}
-
-.timetable .accent-cyan-gradient {
-    display: -webkit-box;
-    display: flex;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #8eeec0, #8edcee);
-    -webkit-transition: .2s ease box-shadow, .2s ease transform;
-    transition: .2s ease box-shadow, .2s ease transform;
-}
-
-.timetable .accent-cyan-gradient:hover {
-    box-shadow: 0 20px 30px 0 rgba(142, 238, 192, 0.3);
-    -webkit-transform: scale(1.05);
-    transform: scale(1.05);
-}
-
-.timetable .accent-blue-gradient {
-    display: -webkit-box;
-    display: flex;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #8ebcee, #a08eee);
-    -webkit-transition: .2s ease box-shadow, .2s ease transform;
-    transition: .2s ease box-shadow, .2s ease transform;
-}
-
-.timetable .accent-blue-gradient:hover {
-    box-shadow: 0 20px 30px 0 rgba(142, 188, 238, 0.3);
-    -webkit-transform: scale(1.05);
-    transform: scale(1.05);
-}
-
-.timetable .accent-purple-gradient {
-    display: -webkit-box;
-    display: flex;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #c08eee, #ee8edc);
-    -webkit-transition: .2s ease box-shadow, .2s ease transform;
-    transition: .2s ease box-shadow, .2s ease transform;
-}
-
-.timetable .accent-purple-gradient:hover {
-    box-shadow: 0 20px 30px 0 rgba(192, 142, 238, 0.3);
-    -webkit-transform: scale(1.05);
-    transform: scale(1.05);
+.period span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
 }
 
 .timetable .week-names {
@@ -165,18 +95,20 @@ nav {
     grid-template-columns: repeat(7, 1fr);
 }
 
+
 .timetable .content>div {
     box-shadow: inset 1px 0 0 #ECEFF1, inset 0 1px 0 0 #ECEFF1;
 }
 
-.result {
+.course-panel {
+    margin-bottom: 1em;
     padding: 0.5em;
     border: solid 1px #dbdbdb;
     height: 300px;
     overflow-y: scroll;
 }
 
-.result>.course {
+.course-panel>.course {
     margin-bottom: 0.5em;
     display: flex;
     flex-flow: column;
@@ -187,8 +119,12 @@ nav {
     padding: 0.5em 2.5em 0.5em 0.5em;
 }
 
-.result>.course>button {
+.course-panel>.course>button {
     position: absolute;
     right: 1em;
     margin: 0 auto;
+}
+
+button * {
+    pointer-events: none;
 }
