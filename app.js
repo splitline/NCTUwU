@@ -52,18 +52,49 @@ window.onload = () => {
         });
 }
 
+function getCourseIdFromElement(element) {
+    return element.closest('.course,.period').id.split("-")[1];
+}
+
 document.addEventListener("click", function (event) {
-    console.log(event.target)
     if (event.target.classList.contains('toggle-course'))
-        toggleCourse(event.target.parentNode.id.split("-")[1]);
+        toggleCourse(getCourseIdFromElement(event.target));
 
     if (event.target.classList.contains('modal-launcher'))
-        toggleModal(event.target.closest('.course,.period').id.split("-")[1]);
+        toggleModal(getCourseIdFromElement(event.target));
+})
+
+document.addEventListener("mouseover", function (event) {
+    if (event.target.matches('.result .course, .result .course *')) {
+        const courseId = getCourseIdFromElement(event.target);
+        const result = parseTime(courseData[courseId].time);
+        result.forEach(period => {
+            const block = document.getElementById(period);
+            if (block.childElementCount)
+                block.firstElementChild.classList.add("has-background-danger", "has-text-white");
+            block.classList.add('has-background-info-light')
+        })
+    }
+})
+
+document.addEventListener("mouseout", function (event) {
+    if (event.target.matches('.result .course, .result .course *')) {
+        document.querySelectorAll('.timetable>.content>[class="has-background-info-light"]')
+            .forEach(elem => {
+                elem.className = '';
+                elem.firstElementChild?.classList.remove("has-background-danger", "has-text-white");
+            });
+    }
 })
 
 function toggleModal(courseId) {
     const modal = document.querySelector('.modal');
-    modal.classList.toggle('is-active');
+    if (modal.classList.contains('is-active')) {
+        modal.classList.remove('is-active');
+        return;
+    }
+
+    modal.classList.add('is-active')
     const data = courseData[courseId];
     const fields = modal.querySelectorAll('dd');
     fields[0].textContent = data.id;
@@ -114,6 +145,12 @@ function toggleCourse(courseId) {
         icon?.classList.replace('fa-times', 'fa-plus');
         button?.classList.remove('is-danger');
     } else { // Select course
+        const periods = parseTime(courseData[courseId].time);
+        if (periods.some(period => document.getElementById(period).childElementCount)) {
+            alert('衝堂了欸')
+            return;
+        }
+
         selectedCourse[courseId] = courseData[courseId];
 
         appendCourseElement(courseData[courseId]);
@@ -138,7 +175,7 @@ function renderPeriodBlock(course) {
     const periods = parseTime(course.time);
     periods.forEach(period => document.getElementById(period).innerHTML = `
     <div id="timetable-${course.id}" class="period modal-launcher">
-        <span class="has-text-grey">${course.name}</span>
+        <span>${course.name}</span>
     </div>`);
 }
 

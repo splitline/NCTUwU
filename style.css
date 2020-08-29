@@ -26,14 +26,12 @@ nav {
     grid-template-rows: auto;
 }
 
-
 .timetable .period {
     cursor: pointer;
     display: block;
     background-color: #f9f9f9;
     padding: 0.5em;
     width: 100%;
-    max-width: 120px;
     height: 100%;
     -webkit-transition: .2s ease box-shadow, .2s ease transform;
     transition: .2s ease box-shadow, .2s ease transform;
@@ -43,7 +41,7 @@ nav {
     box-shadow: 0 20px 30px 0 rgba(238, 142, 188, 0.3);
     -webkit-transform: scale(1.05);
     transform: scale(1.05);
-    z-index: 100;
+    z-index: 10;
 }
 
 .timetable .period span {
