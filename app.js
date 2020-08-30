@@ -19,6 +19,8 @@ const TIME_MAPPING = {
 
 const YEAR = '109', SEMESTER = '1';
 
+const APP_URL = `${location.protocol}//${location.host}${location.pathname}`;
+
 let courseData = {};
 let selectedCourse = {};
 
@@ -27,11 +29,22 @@ function parseBigInt(value, radix = 36) {
         .reduce((r, v) => r * BigInt(radix) + BigInt(parseInt(v, radix)), 0n);
 }
 
+function loadFromShareLink() {
+    const shareKey = location.hash.split("share=")[1];
+    const courseIds = parseBigInt(shareKey).toString().match(/.{1,4}/g);
+    return courseIds.reduce((a, b) => (a[b] = undefined, a), {});
+}
+
+function loadFromLocalStorage() {
+    return JSON.parse(localStorage.getItem("selectedCourse")) || {};
+}
+
 window.onload = () => {
     let share = false;
-    if (location.hash.startsWith("#share=")) {
+    if (location.hash.includes("share=")) {
         share = true;
         document.querySelector(".sidebar").classList.add("is-hidden");
+        document.querySelector("#import").classList.remove("is-hidden");
     }
 
     // Generate timetable.
@@ -54,13 +67,8 @@ window.onload = () => {
         .then(r => r.json())
         .then(data => {
             courseData = data;
-            if (share) {
-                const shareKey = location.hash.split("#share=")[1];
-                const courseIds = parseBigInt(shareKey).toString().match(/.{1,4}/g);
-                courseIds.forEach(id => selectedCourse[id] = undefined);
-            } else {
-                selectedCourse = JSON.parse(localStorage.getItem("selectedCourse")) || {};
-            }
+            selectedCourse = share ? loadFromShareLink() : loadFromLocalStorage();
+
             for (courseId in selectedCourse) {
                 const course = selectedCourse[courseId] = courseData[courseId]; // Update data.
                 renderPeriodBlock(course);
@@ -211,10 +219,23 @@ document.querySelector(".input").oninput = event => {
     result.forEach(course => appendCourseElement(course, true));
 }
 
-document.querySelector("#copy-link").onclick = () => {
+document.getElementById("import").onclick = () => {
+    if (confirm("接下來將會覆蓋你的目前課表ㄛ，確定嗎？")) {
+        localStorage.setItem("selectedCourse", JSON.stringify(selectedCourse));
+        Toastify({
+            text: "匯入完成！點此前往選課模擬",
+            destination: APP_URL,
+            newWindow: true,
+            close: true,
+            duration: 3000
+        }).showToast();
+    }
+}
+
+document.getElementById("copy-link").onclick = () => {
     const shareKey = BigInt(Object.keys(selectedCourse).join('')).toString(36);
 
-    const link = `${location.href}#share=${shareKey}`;
+    const link = `${APP_URL}#share=${shareKey}`;
     const copyInput = document.createElement("textarea");
     copyInput.value = link;
     copyInput.style.position = 'fixed';
