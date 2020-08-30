@@ -31,9 +31,19 @@ let courseData = {};
 let selectedCourse = {};
 let totalCredits = () => Object.keys(selectedCourse).reduce((accu, id) => +courseData[id].credit + accu, 0);
 
+// Safari sucks.
+
+const supportBigInt = typeof BigInt !== 'undefined';
+if (!supportBigInt) BigInt = JSBI.BigInt;
+
 function parseBigInt(value, radix = 36) {
+    const add = (a, b) => supportBigInt ? a + b : JSBI.add(a, b);
+    const mul = (a, b) => supportBigInt ? a * b : JSBI.multiply(a, b);
     return [...value.toString()]
-        .reduce((r, v) => r * BigInt(radix) + BigInt(parseInt(v, radix)), 0n);
+        .reduce((r, v) => add(
+            mul(r, BigInt(radix)),
+            BigInt(parseInt(v, radix))
+        ), BigInt(0));
 }
 
 function loadFromShareLink() {
@@ -89,8 +99,8 @@ fetch(`course-data/${YEAR}${SEMESTER}-data.json`)
             const course = courseData[courseId];
             renderPeriodBlock(course);
             appendCourseElement(course);
-            document.querySelector(".credits").textContent = `${totalCredits()} 學分`;
         }
+        document.querySelector(".credits").textContent = `${totalCredits()} 學分`;
     });
 
 function getCourseIdFromElement(element) {
