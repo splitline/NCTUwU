@@ -130,7 +130,7 @@ footer {
     top: 0;
     left: 0;
     position: absolute;
-    transform: translate(-25%, -25%);
+    transform: translate(-10%, -25%);
     z-index: 10;
 }
 
