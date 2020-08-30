@@ -22,7 +22,18 @@ const YEAR = '109', SEMESTER = '1';
 let courseData = {};
 let selectedCourse = {};
 
+function parseBigInt(value, radix = 36) {
+    return [...value.toString()]
+        .reduce((r, v) => r * BigInt(radix) + BigInt(parseInt(v, radix)), 0n);
+}
+
 window.onload = () => {
+    let share = false;
+    if (location.hash.startsWith("#share=")) {
+        share = true;
+        document.querySelector(".sidebar").classList.add("is-hidden");
+    }
+
     // Generate timetable.
     Object.keys(TIME_MAPPING).forEach(period => {
         const div = document.createElement("div");
@@ -43,7 +54,13 @@ window.onload = () => {
         .then(r => r.json())
         .then(data => {
             courseData = data;
-            selectedCourse = JSON.parse(localStorage.getItem("selectedCourse")) || {};
+            if (share) {
+                const shareKey = location.hash.split("#share=")[1];
+                const courseIds = parseBigInt(shareKey).toString().match(/.{1,4}/g);
+                courseIds.forEach(id => selectedCourse[id] = undefined);
+            } else {
+                selectedCourse = JSON.parse(localStorage.getItem("selectedCourse")) || {};
+            }
             for (courseId in selectedCourse) {
                 const course = selectedCourse[courseId] = courseData[courseId]; // Update data.
                 renderPeriodBlock(course);
@@ -149,7 +166,12 @@ function toggleCourse(courseId) {
         const periods = parseTime(courseData[courseId].time);
         const isConflict = periods.some(period => document.getElementById(period).childElementCount)
         if (isConflict) {
-            alert('衝堂了欸')
+            Toastify({
+                text: "和目前課程衝堂了欸",
+                backgroundColor: "linear-gradient(147deg, #f71735 0%, #db3445 74%)",
+                close: true,
+                duration: 3000
+            }).showToast();
             return;
         }
 
@@ -189,7 +211,35 @@ document.querySelector(".input").oninput = event => {
     result.forEach(course => appendCourseElement(course, true));
 }
 
+document.querySelector("#copy-link").onclick = () => {
+    const shareKey = BigInt(Object.keys(selectedCourse).join('')).toString(36);
 
+    const link = `${location.href}#share=${shareKey}`;
+    const copyInput = document.createElement("textarea");
+    copyInput.value = link;
+    copyInput.style.position = 'fixed';
+    copyInput.style.top = 0;
+    copyInput.style.left = 0;
+
+    document.body.appendChild(copyInput);
+    copyInput.focus();
+    copyInput.select();
+
+    try {
+        document.execCommand('copy');
+        Toastify({
+            text: "複製好了！點此可直接傳送",
+            destination: link,
+            newWindow: true,
+            close: true,
+            duration: 3000
+        }).showToast();
+    } catch (err) {
+        console.log('Oops, unable to copy');
+    }
+
+    document.body.removeChild(copyInput);
+}
 
 document.querySelector('.modal-background').onclick =
     document.querySelector('.card-header-icon').onclick = toggleModal;

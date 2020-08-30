@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NCTUwU | 交大選課模擬器</title>
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -22,7 +23,7 @@
     </nav>
     <div class="container">
         <div class="columns">
-            <div class="column is-one-quarter">
+            <div class="column is-one-quarter sidebar">
                 <div class="field">
                     <p class="control has-icons-left has-icons-right">
                         <input class="input" type="text" placeholder="課號 / 課名 / 老師">
@@ -36,7 +37,15 @@
                 <div class="selected course-panel"></div>
             </div>
             <div class="column">
-                <div class="timetable container">
+                <div style="text-align: right; margin: 0.5em;">
+                    <button id="copy-link" class="button is-small">
+                        <span class="icon is-small">
+                            <i class="fas fa-share-square"></i>
+                        </span>
+                        <span>複製分享連結</span>
+                    </button>
+                </div>
+                <div class="timetable">
                     <div class="week-names">
                         <div>Mon</div>
                         <div>Tue</div>
@@ -102,6 +111,7 @@
             </div>
         </div>
     </div>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="app.js"></script>
 </body>
 
