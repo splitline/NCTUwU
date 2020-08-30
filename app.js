@@ -30,7 +30,7 @@ function parseBigInt(value, radix = 36) {
 }
 
 function loadFromShareLink() {
-    const shareKey = location.hash.split("share=")[1];
+    const shareKey = location.search.split("share=")[1];
     const courseIds = parseBigInt(shareKey).toString().match(/.{1,4}/g);
     return courseIds.reduce((a, b) => (a[b] = undefined, a), {});
 }
@@ -41,10 +41,11 @@ function loadFromLocalStorage() {
 
 window.onload = () => {
     let share = false;
-    if (location.hash.includes("share=")) {
+    if (location.search.includes("share=")) {
         share = true;
         document.querySelector(".sidebar").classList.add("is-hidden");
         document.querySelector("#import").classList.remove("is-hidden");
+        document.querySelector(".loading").classList.remove("is-hidden");
     }
 
     // Generate timetable.
@@ -71,7 +72,7 @@ window.onload = () => {
 
             document.querySelector(".input").disabled = false;
             document.querySelector(".input").placeholder = "課號 / 課名 / 老師";
-            // document.querySelector(".loading").classList.add("is-hidden");
+            document.querySelector(".loading").classList.add("is-hidden");
             for (courseId in selectedCourse) {
                 const course = selectedCourse[courseId] = courseData[courseId]; // Update data.
                 renderPeriodBlock(course);
@@ -238,7 +239,7 @@ document.getElementById("import").onclick = () => {
 document.getElementById("copy-link").onclick = () => {
     const shareKey = BigInt(Object.keys(selectedCourse).join('')).toString(36);
 
-    const link = `${APP_URL}#share=${shareKey}`;
+    const link = `${APP_URL}?share=${shareKey}`;
     const copy = document.createElement("div");
     copy.textContent = link;
     document.body.appendChild(copy);
@@ -253,7 +254,7 @@ document.getElementById("copy-link").onclick = () => {
         console.log(document.execCommand('copy'));
         
         Toastify({
-            text: "複製好了！點此可直接傳送",
+            text: "複製好了！點此可直接前往",
             destination: link,
             newWindow: true,
             close: true,

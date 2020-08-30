@@ -13,7 +13,7 @@ nav {
     margin-bottom: 1em;
 }
 
-.column {
+.timetable {
     overflow-x: scroll;
 }
 
@@ -133,7 +133,6 @@ nav {
 .course-panel>.course>button {
     position: absolute;
     right: 1em;
-    margin: 0 auto;
 }
 
 .modal-launcher *,
