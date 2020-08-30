@@ -15,7 +15,7 @@
     <nav class="navbar is-primary" role="navigation">
         <div class="container">
             <div class="navbar-brand">
-                <a class="navbar-item">
+                <a class="navbar-item" href="https://splitline.github.io/NCTUwU/">
                     <p>NCTUwU</p>
                 </a>
             </div>
@@ -32,9 +32,11 @@
                         </span>
                     </p>
                 </div>
-                <div class="result course-panel">
+                <div class="result course-panel course-list"></div>
+                <div class="course-panel">
+                    <span class="tag is-info credits">學分</span>
+                    <div class="selected course-list"></div>
                 </div>
-                <div class="selected course-panel"></div>
             </div>
             <div class="column">
                 <div style="text-align: right; margin: 0.5em;">
@@ -70,6 +72,15 @@
             </div>
         </div>
     </div>
+
+    <footer class="footer has-text-centered">
+        <p>Designed By @splitline</p>
+        <a href="https://github.com/splitline/NCTUwU" target="_blank">
+            <span class="icon">
+                <i class="fab fa-github"></i>
+            </span>
+        </a>
+    </footer>
 
     <template id="courseTemplate">
         <div class="course">

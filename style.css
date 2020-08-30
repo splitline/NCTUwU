@@ -13,6 +13,13 @@ nav {
     margin-bottom: 1em;
 }
 
+footer {
+    line-height: 2;
+    position: static;
+    margin-top: 3em;
+    color: #AAAAAA
+}
+
 .timetable {
     overflow-x: scroll;
 }
@@ -108,14 +115,26 @@ nav {
 }
 
 .course-panel {
+    position: relative;
+    padding: .75em .5em;
     margin-bottom: 1em;
-    padding: 0.5em;
     border: solid 1px #dbdbdb;
+}
+
+.course-list {
     height: 300px;
     overflow-y: scroll;
 }
 
-.course-panel>.course {
+.course-panel .credits {
+    top: 0;
+    left: 0;
+    position: absolute;
+    transform: translate(-25%, -25%);
+    z-index: 10;
+}
+
+.course-list>.course {
     margin-bottom: 0.5em;
     display: flex;
     flex-flow: column;
@@ -126,11 +145,11 @@ nav {
     padding: 0.5em 2.5em 0.5em 0.5em;
 }
 
-.course-panel>.course #name {
+.course-list>.course #name {
     cursor: pointer;
 }
 
-.course-panel>.course>button {
+.course-list>.course>button {
     position: absolute;
     right: 1em;
 }

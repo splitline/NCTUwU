@@ -29,6 +29,7 @@ const APP_URL = `${location.protocol}//${location.host}${location.pathname}`;
 
 let courseData = {};
 let selectedCourse = {};
+let totalCredits = () => Object.keys(selectedCourse).reduce((accu, id) => +courseData[id].credit + accu, 0);
 
 function parseBigInt(value, radix = 36) {
     return [...value.toString()]
@@ -38,7 +39,7 @@ function parseBigInt(value, radix = 36) {
 function loadFromShareLink() {
     const shareKey = location.search.split("share=")[1];
     const courseIds = parseBigInt(shareKey).toString().match(/.{1,4}/g);
-    return courseIds.reduce((a, b) => (a[b] = undefined, a), {});
+    return courseIds.reduce((a, b) => (a[b] = true, a), {});
 }
 
 function loadFromLocalStorage() {
@@ -85,9 +86,10 @@ fetch(`course-data/${YEAR}${SEMESTER}-data.json`)
         document.querySelector(".input").placeholder = "課號 / 課名 / 老師";
         document.querySelector(".loading").classList.add("is-hidden");
         for (courseId in selectedCourse) {
-            const course = selectedCourse[courseId] = courseData[courseId]; // Update data.
+            const course = courseData[courseId];
             renderPeriodBlock(course);
             appendCourseElement(course);
+            document.querySelector(".credits").textContent = `${totalCredits()} 學分`;
         }
     });
 
@@ -193,8 +195,7 @@ function toggleCourse(courseId) {
             return;
         }
 
-        selectedCourse[courseId] = courseData[courseId];
-
+        selectedCourse[courseId] = true;
         appendCourseElement(courseData[courseId]);
         renderPeriodBlock(courseData[courseId]);
         icon?.classList.replace('fa-plus', 'fa-times');
@@ -202,6 +203,7 @@ function toggleCourse(courseId) {
     }
 
     localStorage.setItem("selectedCourse", JSON.stringify(selectedCourse));
+    document.querySelector(".credits").textContent = `${totalCredits()} 學分`;
 }
 
 function parseTime(timeCode) {
@@ -224,6 +226,9 @@ function renderPeriodBlock(course) {
 document.querySelector(".input").oninput = event => {
     document.querySelector(".result").innerHTML = '';
     const searchTerm = event.target.value.trim();
+    if (searchTerm.includes("'"))
+        document.querySelector(".result").textContent = "1064 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''' at line 1.";
+
     const result = search(searchTerm);
 
     result.forEach(course => appendCourseElement(course, true));
@@ -235,7 +240,6 @@ document.getElementById("import").onclick = () => {
         Toastify({
             text: "匯入完成！點此前往選課模擬",
             destination: APP_URL,
-            newWindow: true,
             close: true,
             duration: 3000
         }).showToast();
