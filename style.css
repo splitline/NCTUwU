@@ -191,3 +191,21 @@ button * {
     text-align: left;
     padding-left: 10px;
 }
+
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #00000044;
+    z-index: 1000;
+
+    color: white;
+    font-size: 3em;
+    text-align: center;
+}
+
+.loading span {
+    line-height: 100vh;
+}

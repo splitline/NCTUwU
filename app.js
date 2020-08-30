@@ -69,6 +69,9 @@ window.onload = () => {
             courseData = data;
             selectedCourse = share ? loadFromShareLink() : loadFromLocalStorage();
 
+            document.querySelector(".input").disabled = false;
+            document.querySelector(".input").placeholder = "課號 / 課名 / 老師";
+            // document.querySelector(".loading").classList.add("is-hidden");
             for (courseId in selectedCourse) {
                 const course = selectedCourse[courseId] = courseData[courseId]; // Update data.
                 renderPeriodBlock(course);
@@ -236,18 +239,19 @@ document.getElementById("copy-link").onclick = () => {
     const shareKey = BigInt(Object.keys(selectedCourse).join('')).toString(36);
 
     const link = `${APP_URL}#share=${shareKey}`;
-    const copyInput = document.createElement("textarea");
-    copyInput.value = link;
-    copyInput.style.position = 'fixed';
-    copyInput.style.top = 0;
-    copyInput.style.left = 0;
-
-    document.body.appendChild(copyInput);
-    copyInput.focus();
-    copyInput.select();
+    const copy = document.createElement("div");
+    copy.textContent = link;
+    document.body.appendChild(copy);
+    
+    const textRange = document.createRange();
+    textRange.selectNode(copy);
+    const selet = window.getSelection();
+    selet.removeAllRanges();
+    selet.addRange(textRange);
 
     try {
-        document.execCommand('copy');
+        console.log(document.execCommand('copy'));
+        
         Toastify({
             text: "複製好了！點此可直接傳送",
             destination: link,
@@ -259,7 +263,7 @@ document.getElementById("copy-link").onclick = () => {
         console.log('Oops, unable to copy');
     }
 
-    document.body.removeChild(copyInput);
+    document.body.removeChild(copy);
 }
 
 document.querySelector('.modal-background').onclick =
