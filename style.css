@@ -149,13 +149,19 @@ footer {
     cursor: pointer;
 }
 
-.course-list>.course>button {
+.course>.toggle-course {
     position: absolute;
     right: 1em;
+    transition: transform .25s;
+}
+
+.course>.toggle-course.is-selected {
+    color: hsl(348, 100%, 61%);
+    transform: rotate(45deg);
 }
 
 .modal-launcher *,
-button * {
+.toggle-course * {
     pointer-events: none;
 }
 
