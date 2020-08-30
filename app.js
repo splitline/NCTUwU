@@ -1,3 +1,9 @@
+/**
+|--------------------------------------------------
+| Constants
+|--------------------------------------------------
+*/
+
 const TIME_MAPPING = {
     "M": "6:00 ~ 6:50",
     "N": "7:00 ~ 7:50",
@@ -39,58 +45,62 @@ function loadFromLocalStorage() {
     return JSON.parse(localStorage.getItem("selectedCourse")) || {};
 }
 
-window.onload = () => {
-    let share = false;
-    if (location.search.includes("share=")) {
-        share = true;
-        document.querySelector(".sidebar").classList.add("is-hidden");
-        document.querySelector("#import").classList.remove("is-hidden");
-        document.querySelector(".loading").classList.remove("is-hidden");
-    }
+/**
+|--------------------------------------------------
+| Init UI
+|--------------------------------------------------
+*/
 
-    // Generate timetable.
-    Object.keys(TIME_MAPPING).forEach(period => {
+let share = false;
+if (location.search.includes("share=")) {
+    share = true;
+    document.querySelector(".sidebar").classList.add("is-hidden");
+    document.querySelector("#import").classList.remove("is-hidden");
+    document.querySelector(".loading").classList.remove("is-hidden");
+}
+
+// Generate timetable.
+Object.keys(TIME_MAPPING).forEach(period => {
+    const div = document.createElement("div");
+    div.textContent = `${period} / ${TIME_MAPPING[period]}`;
+    document.querySelector(".time-interval").appendChild(div);
+});
+
+Object.keys(TIME_MAPPING).forEach(period => {
+    for (let day = 1; day <= 7; ++day) {
         const div = document.createElement("div");
-        div.textContent = `${period} / ${TIME_MAPPING[period]}`;
-        document.querySelector(".time-interval").appendChild(div);
-    });
+        div.id = `${day}${period}`;
+        document.querySelector('.content').appendChild(div);
+    }
+});
 
-    Object.keys(TIME_MAPPING).forEach(period => {
-        for (let day = 1; day <= 7; ++day) {
-            const div = document.createElement("div");
-            div.id = `${day}${period}`;
-            document.querySelector('.content').appendChild(div);
+// Fetch course data.
+fetch(`course-data/${YEAR}${SEMESTER}-data.json`)
+    .then(r => r.json())
+    .then(data => {
+        courseData = data;
+        selectedCourse = share ? loadFromShareLink() : loadFromLocalStorage();
+
+        document.querySelector(".input").disabled = false;
+        document.querySelector(".input").placeholder = "課號 / 課名 / 老師";
+        document.querySelector(".loading").classList.add("is-hidden");
+        for (courseId in selectedCourse) {
+            const course = selectedCourse[courseId] = courseData[courseId]; // Update data.
+            renderPeriodBlock(course);
+            appendCourseElement(course);
         }
     });
 
-    // Fetch course data.
-    fetch(`course-data/${YEAR}${SEMESTER}-data.json`)
-        .then(r => r.json())
-        .then(data => {
-            courseData = data;
-            selectedCourse = share ? loadFromShareLink() : loadFromLocalStorage();
-
-            document.querySelector(".input").disabled = false;
-            document.querySelector(".input").placeholder = "課號 / 課名 / 老師";
-            document.querySelector(".loading").classList.add("is-hidden");
-            for (courseId in selectedCourse) {
-                const course = selectedCourse[courseId] = courseData[courseId]; // Update data.
-                renderPeriodBlock(course);
-                appendCourseElement(course);
-            }
-        });
-}
-
 function getCourseIdFromElement(element) {
-    return element.closest('.course,.period').id.split("-")[1];
+    return element.closest('.course,.period').dataset.id;
 }
 
-document.addEventListener("click", function (event) {
-    if (event.target.classList.contains('toggle-course'))
-        toggleCourse(getCourseIdFromElement(event.target));
+document.addEventListener("click", function ({ target }) {
+    if (target.classList.contains('toggle-course'))
+        toggleCourse(getCourseIdFromElement(target));
 
-    if (event.target.classList.contains('modal-launcher'))
-        toggleModal(getCourseIdFromElement(event.target));
+    if (target.classList.contains('modal-launcher'))
+        openModal(getCourseIdFromElement(target));
 })
 
 document.addEventListener("mouseover", function (event) {
@@ -116,14 +126,10 @@ document.addEventListener("mouseout", function (event) {
     }
 })
 
-function toggleModal(courseId) {
+function openModal(courseId) {
     const modal = document.querySelector('.modal');
-    if (modal.classList.contains('is-active')) {
-        modal.classList.remove('is-active');
-        return;
-    }
-
     modal.classList.add('is-active')
+
     const data = courseData[courseId];
     const fields = modal.querySelectorAll('dd');
     fields[0].textContent = data.id;
@@ -140,7 +146,7 @@ function appendCourseElement(course, search = false) {
     template.content.querySelector(".tag").textContent = course.id;
     template.content.getElementById("name").textContent = course.name;
     template.content.getElementById("detail").textContent = `${course.teacher}・${+course.credit} 學分`;
-    template.content.querySelector(".course").id = `course-${course.id}`;
+    template.content.querySelector(".course").dataset.id = course.id;
 
     template.content.querySelector("button").classList.toggle('is-danger', course.id in selectedCourse)
     template.content.querySelector("i").classList.toggle('fa-times', course.id in selectedCourse)
@@ -155,7 +161,7 @@ function search(searchTerm) {
     const regex = RegExp(searchTerm, 'i');
     const result = Object.values(courseData)
         .filter(course => (
-            (course.id != searchTerm && course.id.match(regex)) ||
+            course.id.match(regex) ||
             course.teacher.match(regex) ||
             course.name.match(regex)
         ))
@@ -165,13 +171,13 @@ function search(searchTerm) {
 }
 
 function toggleCourse(courseId) {
-    const icon = document.querySelector(`#course-${courseId} .toggle-icon`);
-    const button = document.querySelector(`#course-${courseId} button`);
+    const icon = document.querySelector(`.course[data-id="${courseId}"] .toggle-icon`);
+    const button = document.querySelector(`.course[data-id="${courseId}"] button`);
     if (courseId in selectedCourse) { // Remove course
         delete selectedCourse[courseId];
 
-        document.querySelector(`.selected #course-${courseId}`).remove();
-        document.querySelectorAll(`#timetable-${courseId}`).forEach(elem => elem.remove());
+        document.querySelector(`.selected [data-id="${courseId}"]`).remove();
+        document.querySelectorAll(`.period[data-id="${courseId}"]`).forEach(elem => elem.remove());
         icon?.classList.replace('fa-times', 'fa-plus');
         button?.classList.remove('is-danger');
     } else { // Select course
@@ -210,7 +216,7 @@ function parseTime(timeCode) {
 function renderPeriodBlock(course) {
     const periods = parseTime(course.time);
     periods.forEach(period => document.getElementById(period).innerHTML = `
-    <div id="timetable-${course.id}" class="period modal-launcher">
+    <div data-id="${course.id}" class="period modal-launcher">
         <span>${course.name}</span>
     </div>`);
 }
@@ -243,7 +249,7 @@ document.getElementById("copy-link").onclick = () => {
     const copy = document.createElement("div");
     copy.textContent = link;
     document.body.appendChild(copy);
-    
+
     const textRange = document.createRange();
     textRange.selectNode(copy);
     const selet = window.getSelection();
@@ -252,7 +258,7 @@ document.getElementById("copy-link").onclick = () => {
 
     try {
         console.log(document.execCommand('copy'));
-        
+
         Toastify({
             text: "複製好了！點此可直接前往",
             destination: link,
@@ -268,4 +274,5 @@ document.getElementById("copy-link").onclick = () => {
 }
 
 document.querySelector('.modal-background').onclick =
-    document.querySelector('.card-header-icon').onclick = toggleModal;
+    document.querySelector('.card-header-icon').onclick =
+    () => document.querySelector('.modal').classList.remove('is-active');

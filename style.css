@@ -103,7 +103,7 @@ nav {
 
 
 .timetable .content>div {
-    min-width: 120px;
+    min-width: 90px;
     box-shadow: inset 1px 0 0 #ECEFF1, inset 0 1px 0 0 #ECEFF1;
 }
 
