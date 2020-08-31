@@ -159,9 +159,7 @@ function appendCourseElement(course, search = false) {
     template.content.getElementById("name").textContent = course.name;
     template.content.getElementById("detail").textContent = `${course.teacher}・${+course.credit} 學分`;
     template.content.querySelector(".course").dataset.id = course.id;
-
     template.content.querySelector(".toggle-course").classList.toggle('is-selected', course.id in selectedCourse)
-    // template.content.querySelector("i").classList.toggle('is-selected')
 
     const clone = document.importNode(template.content, true);
     document.querySelector(search ? ".result" : ".selected").appendChild(clone);
@@ -183,14 +181,12 @@ function search(searchTerm) {
 }
 
 function toggleCourse(courseId) {
-    // const icon = document.querySelector(`.course[data-id="${courseId}"] .toggle-course`);
     const button = document.querySelector(`.course[data-id="${courseId}"] .toggle-course`);
     if (courseId in selectedCourse) { // Remove course
         delete selectedCourse[courseId];
 
         document.querySelector(`.selected [data-id="${courseId}"]`).remove();
         document.querySelectorAll(`.period[data-id="${courseId}"]`).forEach(elem => elem.remove());
-        // icon?.classList.remove("is-selected");
         button?.classList.remove('is-selected');
     } else { // Select course
         const periods = parseTime(courseData[courseId].time);
@@ -208,7 +204,6 @@ function toggleCourse(courseId) {
         selectedCourse[courseId] = true;
         appendCourseElement(courseData[courseId]);
         renderPeriodBlock(courseData[courseId]);
-        // icon?.classList.add('is-selected');
         button?.classList.add('is-selected');
     }
 
@@ -271,7 +266,7 @@ document.getElementById("copy-link").onclick = () => {
     selet.addRange(textRange);
 
     try {
-        console.log(document.execCommand('copy'));
+        document.execCommand('copy');
 
         Toastify({
             text: "複製好了！點此可直接前往",
