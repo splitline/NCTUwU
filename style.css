@@ -1,8 +1,11 @@
 html,
 body {
     margin: 0;
-    font-family: 'Karla';
-    color: #546E7A;
+    font-family: 'Noto Sans TC', sans-serif;
+}
+
+body {
+    padding-top: 4.5rem;
 }
 
 * {
@@ -10,7 +13,13 @@ body {
 }
 
 nav {
-    margin-bottom: 1em;
+    margin-bottom: 1.75rem;
+    box-shadow: 0 5px 10px #e6e9eb;
+}
+
+.navbar-brand img {
+    transform: translateY(10%);
+    max-height: 2rem;
 }
 
 footer {
