@@ -47,7 +47,7 @@ function parseBigInt(value, radix = 36) {
 }
 
 function loadFromShareLink() {
-    const shareKey = location.search.split("share=")[1];
+    const shareKey = new URLSearchParams(location.search).get("share");
     const courseIds = parseBigInt(shareKey).toString().match(/.{1,4}/g);
     return courseIds.reduce((a, b) => (a[b] = true, a), {});
 }
