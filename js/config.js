@@ -15,8 +15,20 @@ const TIME_MAPPING = {
   "J": "19:30 ~ 20:20",
   "K": "20:30 ~ 21:20",
   "L": "21:30 ~ 22:20"
-}
-
+};
 const YEAR = '109', SEMESTER = '1';
-
 const APP_URL = `${location.protocol}//${location.host}${location.pathname}`;
+
+const OAUTH_CLIENT_ID = "3VH1pFMqlVR9RHlfyk83q2tqOnT3zaIL0k0ZyPcz";
+const OAUTH_ORIGIN = "https://us-central1-nctuwu-9d0d4.cloudfunctions.net";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCf-vB0ZWg02Xua06yEbVBXYK0-KkuHNaw",
+  authDomain: "nctuwu-9d0d4.firebaseapp.com",
+  databaseURL: "https://nctuwu-9d0d4.firebaseio.com",
+  projectId: "nctuwu-9d0d4",
+  storageBucket: "nctuwu-9d0d4.appspot.com",
+  messagingSenderId: "915718818939",
+  appId: "1:915718818939:web:1a1d4e295e6685914ba6de",
+  measurementId: "G-2RS0C00B4C"
+};

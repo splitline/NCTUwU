@@ -1,5 +1,64 @@
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    onOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+})
+
 let courseData = {};
 let selectedCourse = {};
+
+firebase.initializeApp(firebaseConfig);
+firebase.analytics?.();
+
+const db = firebase.database();
+
+window.addEventListener("message", function (event) {
+    if (event.origin === OAUTH_ORIGIN) {
+        const { data } = event;
+        firebase.auth().signInWithCustomToken(data.token).then(user => {
+            if (user.additionalUserInfo.isNewUser) {
+                firebase.auth().currentUser.updateEmail(data.email);
+                save();
+            }
+        })
+    }
+}, false);
+
+firebase.auth().onAuthStateChanged(function (user) {
+    document.getElementById("user-status").textContent = user ? `嗨，${user.uid}` : "Login";
+    document.getElementById("user-status").onclick = user ? undefined : login;
+
+    if (user && !share) {
+        db.ref(`user/${firebase.auth().currentUser.uid}/`)
+            .once("value", function (snapshot) {
+                if (!snapshot.val()) return;
+                const { course = {}, lastUpdate: remoteLastUpdate } = snapshot.val();
+                const isSame = Object.keys(selectedCourse) === Object.keys(course) &&
+                    Object.keys(course).sort().every((value, index) => value === Object.keys(selectedCourse).sort()[index])
+                const localLastUpdate = +localStorage.getItem("lastUpdate");
+
+                // sync: remote to local
+                if (!isSame && new Date(localLastUpdate) < new Date(remoteLastUpdate)) {
+                    Toast.fire({ text: "已從伺服器更新你的課表" });
+                    selectedCourse = course;
+                    save(false);
+                }
+                renderAllSelected();
+            })
+    }
+});
+
+const login = () => {
+    document.getElementById("user-status").textContent = "...";
+    document.getElementById("user-status").onclick = undefined;
+    window.open(`https://id.nctu.edu.tw/o/authorize/?client_id=${OAUTH_CLIENT_ID}&response_type=code&scope=profile`)
+}
 
 // Safari sucks.
 
@@ -33,7 +92,6 @@ if (location.search.includes("share=")) {
     share = true;
     document.querySelector(".sidebar").classList.add("is-hidden");
     document.querySelector("#import").classList.remove("is-hidden");
-    document.querySelector(".loading").classList.remove("is-hidden");
 }
 
 // Render timetable.
@@ -60,14 +118,20 @@ fetch(`course-data/${YEAR}${SEMESTER}-data.json`)
 
         document.querySelector(".input").disabled = false;
         document.querySelector(".input").placeholder = "課號 / 課名 / 老師";
-        document.querySelector(".loading").classList.add("is-hidden");
-        for (courseId in selectedCourse) {
-            const course = courseData[courseId];
-            renderPeriodBlock(course);
-            appendCourseElement(course);
-        }
         document.querySelector(".credits").textContent = `${totalCredits()} 學分`;
+        renderAllSelected();
     });
+
+function renderAllSelected() {
+    document.querySelector(".credits").textContent = `${totalCredits()} 學分`;
+    document.querySelectorAll(".timetable .content>div").forEach(elem => elem.firstElementChild?.remove())
+    document.querySelector(".selected").innerHTML = '';
+    for (courseId in selectedCourse) {
+        const course = courseData[courseId];
+        renderPeriodBlock(course);
+        appendCourseElement(course);
+    }
+}
 
 function getCourseIdFromElement(element) {
     return element.closest('.course,.period').dataset.id;
@@ -89,7 +153,7 @@ document.addEventListener("mouseover", function (event) {
             const block = document.getElementById(period);
             if (block.childElementCount)
                 block.firstElementChild.classList.add("has-background-danger", "has-text-white");
-            block.classList.add('has-background-info-light')
+            block.classList.add('has-background-info-light');
         })
     }
 })
@@ -146,6 +210,18 @@ function search(searchTerm) {
     return result;
 }
 
+function save(remote = true) {
+    const lastUpdate = +new Date();
+    localStorage.setItem("selectedCourse", JSON.stringify(selectedCourse));
+    localStorage.setItem("lastUpdate", +new Date());
+
+    if (firebase.auth().currentUser && remote)
+        db.ref(`user/${firebase.auth().currentUser.uid}/`).set({
+            course: selectedCourse,
+            lastUpdate: lastUpdate
+        });
+}
+
 function toggleCourse(courseId) {
     const button = document.querySelector(`.course[data-id="${courseId}"] .toggle-course`);
     if (courseId in selectedCourse) { // Remove course
@@ -158,22 +234,18 @@ function toggleCourse(courseId) {
         const periods = parseTime(courseData[courseId].time);
         const isConflict = periods.some(period => document.getElementById(period).childElementCount)
         if (isConflict) {
-            Toastify({
-                text: "和目前課程衝堂了欸",
-                backgroundColor: "linear-gradient(147deg, #f71735 0%, #db3445 74%)",
-                close: true,
-                duration: 3000
-            }).showToast();
+            Toast.fire({
+                icon: 'error',
+                title: "和目前課程衝堂了欸"
+            });
             return;
         }
-
         selectedCourse[courseId] = true;
         appendCourseElement(courseData[courseId]);
         renderPeriodBlock(courseData[courseId]);
         button?.classList.add('is-selected');
     }
-
-    localStorage.setItem("selectedCourse", JSON.stringify(selectedCourse));
+    save();
     document.querySelector(".credits").textContent = `${totalCredits()} 學分`;
 }
 
@@ -206,15 +278,21 @@ document.querySelector(".input").oninput = event => {
 }
 
 document.getElementById("import").onclick = () => {
-    if (confirm("接下來將會覆蓋你的目前課表ㄛ，確定嗎？")) {
-        localStorage.setItem("selectedCourse", JSON.stringify(selectedCourse));
-        Toastify({
-            text: "匯入完成！點此前往選課模擬",
-            destination: APP_URL,
-            close: true,
-            duration: 3000
-        }).showToast();
-    }
+    Swal.fire({
+        title: '匯入課表',
+        text: "接下來將會覆蓋你目前的課表ㄛ，確定嗎？",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '匯入'
+    }).then(result => {
+        if (result.value) {
+            save();
+            Toast.fire({
+                title: `<a href=${APP_URL}>匯入完成！點此前往選課模擬</a>`,
+                icon: "success"
+            });
+        }
+    })
 }
 
 document.getElementById("copy-link").onclick = () => {
@@ -233,14 +311,10 @@ document.getElementById("copy-link").onclick = () => {
 
     try {
         document.execCommand('copy');
-
-        Toastify({
-            text: "複製好了！點此可直接前往",
-            destination: link,
-            newWindow: true,
-            close: true,
-            duration: 3000
-        }).showToast();
+        Toast.fire({
+            title: `<a href="${link}" target="_blank">複製好了！點此可直接前往</a>`,
+            icon: "success"
+        });
     } catch (err) {
         console.log('Oops, unable to copy');
     }
