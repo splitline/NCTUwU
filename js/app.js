@@ -269,7 +269,7 @@ function renderDepartment(department) {
 
 function renderAllSelected() {
     document.querySelector(".credits").textContent = `${totalCredits()} 學分`;
-    document.querySelectorAll(".timetable .content>div").forEach(elem => elem.firstElementChild?.remove())
+    document.querySelectorAll(".timetable .period").forEach(elem => elem.remove())
     document.querySelector(".selected").innerHTML = '';
     for (courseId in selectedCourse) {
         const course = courseData[courseId];
