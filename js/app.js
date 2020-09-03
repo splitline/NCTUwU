@@ -12,6 +12,12 @@ const Toast = Swal.mixin({
 
 let courseData = {};
 let selectedCourse = {};
+let department = {}
+
+let filter = {
+    department: false,
+    departmentId: -1,
+};
 
 firebase.initializeApp(firebaseConfig);
 firebase.analytics?.();
@@ -110,9 +116,13 @@ Object.keys(TIME_MAPPING).forEach(period => {
 });
 
 // Fetch course data.
-fetch(`course-data/${YEAR}${SEMESTER}-data.json`)
-    .then(r => r.json())
-    .then(data => {
+Promise.all([
+    `course-data/${YEAR}${SEMESTER}-data.json`,
+    `course-data/department.json`
+].map(url => fetch(url).then(r => r.json())))
+    .then(response => {
+        const [data, department] = response;
+
         courseData = data;
         selectedCourse = share ? loadFromShareLink() : loadFromLocalStorage();
 
@@ -120,7 +130,61 @@ fetch(`course-data/${YEAR}${SEMESTER}-data.json`)
         document.querySelector(".input").placeholder = "課號 / 課名 / 老師";
         document.querySelector(".credits").textContent = `${totalCredits()} 學分`;
         renderAllSelected();
+        renderDepartment(department);
     });
+
+function setFilter(filterData) {
+    Object.entries(filterData)
+        .forEach(([key, value]) => {
+            if (key in filter)
+                filter[key] = value;
+            else
+                throw `${key} not in filter!`;
+        });
+    renderSearchResult();
+}
+
+function renderDepartment(department) {
+    const renderSelect = (id, options) => {
+        document.querySelector(`.department[data-level="${id}"]`).parentElement.classList.remove('is-hidden')
+        document.querySelector(`.department[data-level="${id}"]`).innerHTML =
+            (id === 1 ? "<option selected>全部開課單位</option>" : "<option disabled selected>選擇開課單位</option>") +
+            Object.entries(options).map(
+                ([name]) => `<option>${name}</option>`
+            ).join('');
+    }
+    renderSelect(1, department);
+    document.querySelectorAll('select').forEach((elem, _, selects) =>
+        elem.onchange = ({ target }) => {
+            const level = +target.dataset.level;
+            let currentValue;
+            if (level === 1) {
+                if (elem.value === "全部開課單位") {
+                    setFilter({ department: false, departmentId: -1 });
+                    selects[1].parentElement.classList.add('is-hidden');
+                    selects[2].parentElement.classList.add('is-hidden');
+                    return;
+                }
+                currentValue = department[elem.value];
+            }
+            else if (level === 2)
+                currentValue = department[selects[0].value][elem.value];
+            else
+                currentValue = department[selects[0].value][selects[1].value][elem.value]
+
+            const hasNextLevel = !(typeof currentValue === 'number');
+            if (hasNextLevel)
+                renderSelect(level + 1, currentValue)
+            else
+                setFilter({ department: true, departmentId: currentValue });
+
+            selects.forEach(select =>
+                (+select.dataset.level > level + hasNextLevel) &&
+                select.parentElement.classList.add('is-hidden')
+            );
+        }
+    )
+}
 
 function renderAllSelected() {
     document.querySelector(".credits").textContent = `${totalCredits()} 學分`;
@@ -187,7 +251,7 @@ function appendCourseElement(course, search = false) {
     const template = document.getElementById("courseTemplate");
     template.content.querySelector(".tag").textContent = course.id;
     template.content.getElementById("name").textContent = course.name;
-    template.content.getElementById("detail").textContent = `${course.teacher}・${+course.credit} 學分`;
+    template.content.getElementById("detail").textContent = `${course.teacher}・${+course.credit} 學分・${course.required ? '必' : '選'}`;
     template.content.querySelector(".course").dataset.id = course.id;
     template.content.querySelector(".toggle-course").classList.toggle('is-selected', course.id in selectedCourse)
 
@@ -196,16 +260,19 @@ function appendCourseElement(course, search = false) {
 }
 
 function search(searchTerm) {
-    if (!searchTerm) return [];
+    if (!searchTerm &&
+        !(filter.department)
+    ) return [];
 
     const regex = RegExp(searchTerm, 'i');
     const result = Object.values(courseData)
-        .filter(course => (
-            course.id.match(regex) ||
+        .filter(course => ((
+            !searchTerm ||
+            course.id == searchTerm ||
             course.teacher.match(regex) ||
-            course.name.match(regex)
-        ))
-        .slice(0, 50);
+            course.name.match(regex)) &&
+            (!filter.department || course.dep.includes(filter.departmentId))
+        ));
 
     return result;
 }
@@ -266,15 +333,20 @@ function renderPeriodBlock(course) {
     </div>`);
 }
 
-document.querySelector(".input").oninput = event => {
+function renderSearchResult(searchTerm) {
     document.querySelector(".result").innerHTML = '';
+    if (typeof searchTerm === 'undefined')
+        searchTerm = document.querySelector(".input").value.trim();
+    const result = search(searchTerm);
+    result.forEach(course => appendCourseElement(course, true));
+}
+
+document.querySelector(".input").oninput = event => {
     const searchTerm = event.target.value.trim();
     if (searchTerm.includes("'"))
         document.querySelector(".result").textContent = "1064 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''' at line 1.";
 
-    const result = search(searchTerm);
-
-    result.forEach(course => appendCourseElement(course, true));
+    renderSearchResult(searchTerm);
 }
 
 document.getElementById("import").onclick = () => {
