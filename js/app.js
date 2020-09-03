@@ -484,6 +484,25 @@ document.getElementById("copy-link").onclick = () => {
     document.body.removeChild(copy);
 }
 
+document.getElementById("download").onclick = () => {
+    const node = document.getElementById('timetable')
+    document.querySelectorAll(".period")
+        .forEach(elem => elem.innerHTML += `<p class="tmp">${courseData[elem.dataset.id].time.split("-").slice(-1)}</p>`)
+    domtoimage.toPng(node)
+        .then(function (dataUrl) {
+            var link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = '課表.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            document.querySelectorAll(".period").forEach(elem => elem.querySelector("tmp").remove())
+        })
+        .catch(function (error) {
+            console.error('oops, something went wrong!', error);
+        });
+}
+
 document.querySelector('.modal-background').onclick =
     document.querySelector('.card-header-icon').onclick =
     () => document.querySelector('.modal').classList.remove('is-active');
