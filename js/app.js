@@ -506,7 +506,7 @@ document.getElementById("download").onclick = () => {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            document.querySelectorAll(".period").forEach(elem => elem.querySelector("tmp").remove())
+            document.querySelectorAll(".period").forEach(elem => elem.querySelector(".tmp").remove())
         })
         .catch(function (error) {
             console.error('oops, something went wrong!', error);
