@@ -18,6 +18,13 @@ const TIME_MAPPING = {
 };
 
 const COURSE_TYPE = ['選修', '必修', '通識', '體育', '軍訓', '外語'];
+const BERIEF_CODE = {
+  'A501': '核心(人文)',
+  'A502': '核心(社會)',
+  'A503': '核心(自然)',
+  'A504': '跨院',
+  'A505': '校基本'
+}
 const YEAR = '109', SEMESTER = '1';
 const APP_URL = `${location.protocol}//${location.host}${location.pathname}`;
 

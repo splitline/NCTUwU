@@ -247,20 +247,34 @@ function openModal(courseId) {
     modal.querySelector('#outline').href = `https://timetable.nctu.edu.tw/?r=main/crsoutline&Acy=${YEAR}&Sem=${SEMESTER}&CrsNo=${courseId}&lang=zh-tw`;
 }
 
-function appendCourseElement(course, search = false) {
-    const template = document.getElementById("courseTemplate");
-    template.content.getElementById("type").textContent = COURSE_TYPE[course.type];
-    const typeColor = course.type === 0 ? 'is-white' :
-                      course.type === 1 ? 'is-danger' :
-                      'is-primary';
-    template.content.getElementById("type").className = `tag is-rounded ${typeColor}`;
-    template.content.getElementById("name").textContent = course.name;
-    template.content.getElementById("detail").textContent = `${course.id}・${course.teacher}・${+course.credit} 學分`;
-    template.content.querySelector(".course").dataset.id = course.id;
-    template.content.querySelector(".toggle-course").classList.toggle('is-selected', course.id in selectedCourse)
+function createTag(text, type) {
+    const tag = document.createElement("span");
+    tag.className = `tag is-rounded ${type}`;
+    tag.textContent = text;
+    return tag;
+}
 
-    const clone = document.importNode(template.content, true);
-    document.querySelector(search ? ".result" : ".selected").appendChild(clone);
+function appendCourseElement(course, search = false) {
+    const template = document.importNode(document.getElementById("courseTemplate").content, true);
+    template.getElementById("type").textContent = COURSE_TYPE[course.type];
+    const typeColor = course.type === 0 ? 'is-white' :
+        course.type === 1 ? 'is-danger' :
+            'is-primary';
+    template.getElementById("type").className = `tag is-rounded ${typeColor}`;
+    template.getElementById("name").textContent = course.name;
+
+    if (course.english)
+        template.querySelector(".chips").appendChild(createTag("英文授課", "is-success"));
+    course.brief_code.forEach(code =>
+        code in BERIEF_CODE &&
+        template.querySelector(".chips").appendChild(createTag(BERIEF_CODE[code], "is-warning")));
+
+    template.getElementById("detail").textContent = `${course.id}・${course.teacher}・${+course.credit} 學分`;
+    template.querySelector(".course").dataset.id = course.id;
+    template.querySelector(".toggle-course").classList.toggle('is-selected', course.id in selectedCourse)
+
+    // const clone = document.importNode(template.content, true);
+    document.querySelector(search ? ".result" : ".selected").appendChild(template);
 }
 
 function search(searchTerm) {
@@ -322,6 +336,8 @@ function toggleCourse(courseId) {
 
 function parseTime(timeCode) {
     const timeList = timeCode.match(/[1-7][A-Z]+/g);
+    if (!timeList) return [];
+
     const result = timeList.map(
         code => [...code].map(char => `${code[0]}${char}`).slice(1)
     ).flat();
