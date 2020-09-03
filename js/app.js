@@ -61,7 +61,7 @@ firebase.auth().onAuthStateChanged(function (user) {
             .once("value", function (snapshot) {
                 if (!snapshot.val()) return;
                 const { course = {}, lastUpdate: remoteLastUpdate } = snapshot.val();
-                const isSame = Object.keys(selectedCourse) === Object.keys(course) &&
+                const isSame = Object.keys(selectedCourse).length === Object.keys(course).length &&
                     Object.keys(course).sort().every((value, index) => value === Object.keys(selectedCourse).sort()[index])
                 const localLastUpdate = +localStorage.getItem("lastUpdate");
 
