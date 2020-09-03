@@ -249,9 +249,13 @@ function openModal(courseId) {
 
 function appendCourseElement(course, search = false) {
     const template = document.getElementById("courseTemplate");
-    template.content.querySelector(".tag").textContent = course.id;
+    template.content.getElementById("type").textContent = COURSE_TYPE[course.type];
+    const typeColor = course.type === 0 ? 'is-white' :
+                      course.type === 1 ? 'is-danger' :
+                      'is-primary';
+    template.content.getElementById("type").className = `tag is-rounded ${typeColor}`;
     template.content.getElementById("name").textContent = course.name;
-    template.content.getElementById("detail").textContent = `${course.teacher}・${+course.credit} 學分・${course.required ? '必' : '選'}`;
+    template.content.getElementById("detail").textContent = `${course.id}・${course.teacher}・${+course.credit} 學分`;
     template.content.querySelector(".course").dataset.id = course.id;
     template.content.querySelector(".toggle-course").classList.toggle('is-selected', course.id in selectedCourse)
 
@@ -272,7 +276,7 @@ function search(searchTerm) {
             course.teacher.match(regex) ||
             course.name.match(regex)) &&
             (!filter.department || course.dep.includes(filter.departmentId))
-        ));
+        )).slice(0, 150);
 
     return result;
 }

@@ -16,6 +16,8 @@ const TIME_MAPPING = {
   "K": "20:30 ~ 21:20",
   "L": "21:30 ~ 22:20"
 };
+
+const COURSE_TYPE = ['選修', '必修', '通識', '體育', '軍訓', '外語'];
 const YEAR = '109', SEMESTER = '1';
 const APP_URL = `${location.protocol}//${location.host}${location.pathname}`;
 
