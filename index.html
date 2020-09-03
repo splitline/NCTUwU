@@ -40,9 +40,17 @@
                 <a class="navbar-item" href="https://splitline.github.io/NCTUwU/">
                     <img src="img/brand.png">
                 </a>
+                <a role="button" class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
             </div>
-            <div class="navbar-end">
-                <a class="navbar-item" id="user-status"></a>
+
+            <div class="navbar-menu" id="navMenu">
+                <div class="navbar-end">
+                    <a class="navbar-item" id="user-status"></a>
+                </div>
             </div>
         </div>
     </nav>
@@ -139,6 +147,16 @@
                 <i class="fab fa-github"></i>
             </span>
         </a>
+        <a href="https://www.facebook.com/NCTUwU.simulator/" target="_blank">
+            <span class="icon">
+                <i class="fab fa-facebook"></i>
+            </span>
+        </a>
+        <a href="https://t.me/NCTUwU_simulator" target="_blank">
+            <span class="icon">
+                <i class="fab fa-telegram"></i>
+            </span>
+        </a>
     </footer>
 
     <template id="courseTemplate">
@@ -198,6 +216,23 @@
     <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-analytics.js"></script>
     <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+            if ($navbarBurgers.length > 0) {
+                $navbarBurgers.forEach(el => {
+                    el.addEventListener('click', () => {
+                        const target = el.dataset.target;
+                        const $target = document.getElementById(target);
+                        el.classList.toggle('is-active');
+                        $target.classList.toggle('is-active');
+
+                    });
+                });
+            }
+
+        });
+    </script>
 </body>
 
 </html>
