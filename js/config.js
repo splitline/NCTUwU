@@ -28,8 +28,10 @@ const BERIEF_CODE = {
 const YEAR = '109', SEMESTER = '1';
 const APP_URL = `${location.protocol}//${location.host}${location.pathname}`;
 
-const OAUTH_CLIENT_ID = "3VH1pFMqlVR9RHlfyk83q2tqOnT3zaIL0k0ZyPcz";
-const OAUTH_ORIGIN = "https://us-central1-nctuwu-9d0d4.cloudfunctions.net";
+const DEV = location.hostname === '127.0.0.1';
+
+const OAUTH_CLIENT_ID = DEV ? "nVua1wBnhGZW9Y1UVVfNNkrreVCY31LvJnRoHGG4" : "3VH1pFMqlVR9RHlfyk83q2tqOnT3zaIL0k0ZyPcz";
+const OAUTH_ORIGIN = DEV ? "http://127.0.0.1:5001" : "https://us-central1-nctuwu-9d0d4.cloudfunctions.net";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCf-vB0ZWg02Xua06yEbVBXYK0-KkuHNaw",

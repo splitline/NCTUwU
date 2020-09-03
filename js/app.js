@@ -343,7 +343,6 @@ function appendCourseElement(course, search = false) {
     template.querySelector(".course").dataset.id = course.id;
     template.querySelector(".toggle-course").classList.toggle('is-selected', course.id in selectedCourse)
 
-    // const clone = document.importNode(template.content, true);
     document.querySelector(search ? ".result" : ".selected").appendChild(template);
 }
 
