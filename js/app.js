@@ -41,6 +41,17 @@ window.addEventListener("message", function (event) {
     }
 }, false);
 
+
+db.ref("news/").orderByKey().limitToLast(1).on("value", function (snapshot) {
+    const lastReadNews = +localStorage.getItem("lastReadNews");
+    const value = snapshot.val();
+    const [id, news] = Object.entries(value)[0];
+    if (id > lastReadNews) 
+        Swal.fire({ title: news.title, html: news.content, icon: 'info' })
+
+    localStorage.setItem("lastReadNews", id);
+});
+
 firebase.auth().onAuthStateChanged(function (user) {
     document.getElementById("user-status").textContent = user ? `嗨，${user.uid}` : "Login";
     document.getElementById("user-status").onclick = user ? undefined : login;
