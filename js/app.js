@@ -22,6 +22,8 @@ let filter = {
     departmentId: -1,
 };
 
+let config = {};
+
 firebase.initializeApp(firebaseConfig);
 firebase.analytics?.();
 
@@ -127,6 +129,37 @@ Object.keys(TIME_MAPPING).forEach(period => {
     }
 });
 
+const settingOptions = [
+    {
+        key: "trimTimetable",
+        description: "我不用早出晚歸",
+        callback: value => value ?
+            document.querySelectorAll(".extra").forEach(hide) :
+            document.querySelectorAll(".extra").forEach(elem =>
+                (!elem.classList.contains("weekend") || !config.hideWeekend) && show(elem)
+            )
+    }, {
+        key: "hideWeekend",
+        description: "我週末沒課",
+        callback: value => value ?
+            document.querySelectorAll(".weekend").forEach(hide) :
+            document.querySelectorAll(".weekend").forEach(elem =>
+                (!elem.classList.contains("extra") || !config.trimTimetable) && show(elem)
+            )
+    }, {
+        key: "hideTag",
+        description: "隱藏課程列表中的 tag",
+        callback: value => {
+            const cssSheet = document.getElementById("custom-style").sheet;
+            value ?
+                cssSheet.insertRule(".course .tag{display: none;}", 0) :
+                cssSheet.cssRules.length && cssSheet.deleteRule(0)
+        }
+    }
+];
+
+renderConfig(settingOptions);
+
 // Fetch course data.
 Promise.all([
     `course-data/${YEAR}${SEMESTER}-data.json`,
@@ -154,6 +187,31 @@ function setFilter(filterData) {
                 throw `${key} not in filter!`;
         });
     renderSearchResult();
+}
+
+
+function renderConfig(options) {
+    const storedConfig = JSON.parse(localStorage.getItem("timetableConfig")) || {};
+    options.forEach(rule => {
+        const label = document.createElement("label");
+        label.className = "checkbox";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.onclick = ({ target }) => {
+            config[rule.key] = target.checked;
+            localStorage.setItem("timetableConfig", JSON.stringify(config));
+            rule.callback(target.checked);
+        };
+        checkbox.checked = !!storedConfig[rule.key];
+        label.appendChild(checkbox);
+        label.append(" " + rule.description);
+        document.querySelector("#setting .dropdown-item").appendChild(label);
+
+        config[rule.key] = checkbox.checked;
+        rule.callback(checkbox.checked);
+    });
+
+    config = storedConfig;
 }
 
 function renderDepartment(department) {

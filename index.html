@@ -86,6 +86,22 @@
                         </span>
                         <span>匯入此課表</span>
                     </button>
+
+                    <div class="dropdown is-right is-hoverable">
+                        <div class="dropdown-trigger">
+                            <button class="button is-small" aria-haspopup="true" aria-controls="setting">
+                                <span class="icon is-small">
+                                    <i class="fas fa-cog" aria-hidden="true"></i>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="dropdown-menu" id="setting" role="menu">
+                            <div class="dropdown-content has-text-left">
+                                <div class="dropdown-item">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="table-container">
                     <table class="timetable" id="timetable">
@@ -167,14 +183,13 @@
         </div>
     </div>
 
-
+    <style id="custom-style"></style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
     <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-analytics.js"></script>
     <script src="js/app.js"></script>
-    <style id="custom-style"></style>
 </body>
 
 </html>
