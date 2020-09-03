@@ -296,7 +296,7 @@ document.addEventListener("mouseout", function (event) {
     if (event.target.matches('.result .course, .result .course *')) {
         document.querySelectorAll('.timetable .has-background-info-light')
             .forEach(elem => {
-                elem.className = '';
+                elem.classList.remove('has-background-info-light');
                 elem.firstElementChild?.classList.remove("has-background-danger", "has-text-white");
             });
     }
