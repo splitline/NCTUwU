@@ -87,20 +87,23 @@
                         <span>匯入此課表</span>
                     </button>
                 </div>
-                <div class="timetable">
-                    <div class="week-names">
-                        <div>Mon</div>
-                        <div>Tue</div>
-                        <div>Wed</div>
-                        <div>Thu</div>
-                        <div>Fri</div>
-                        <div>Sat</div>
-                        <div>Sun</div>
-                    </div>
-                    <div class="time-interval">
-                    </div>
-                    <div class="content">
-                    </div>
+                <div class="table-container">
+                    <table class="timetable" id="timetable">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Mon</th>
+                                <th>Tue</th>
+                                <th>Wed</th>
+                                <th>Thu</th>
+                                <th>Fri</th>
+                                <th class="weekend">Sat</th>
+                                <th class="weekend">Sun</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -171,6 +174,7 @@
     <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-analytics.js"></script>
     <script src="js/app.js"></script>
+    <style id="custom-style"></style>
 </body>
 
 </html>

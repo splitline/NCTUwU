@@ -8,7 +8,10 @@ const Toast = Swal.mixin({
         toast.addEventListener('mouseenter', Swal.stopTimer)
         toast.addEventListener('mouseleave', Swal.resumeTimer)
     }
-})
+});
+
+const hide = elem => elem.classList.add("is-hidden");
+const show = elem => elem.classList.remove("is-hidden");
 
 let courseData = {};
 let selectedCourse = {};
@@ -41,7 +44,7 @@ firebase.auth().onAuthStateChanged(function (user) {
     document.getElementById("user-status").onclick = user ? undefined : login;
 
     if (user && !share) {
-        db.ref(`user/${firebase.auth().currentUser.uid}/`)
+        db.ref(`user/${firebase.auth().currentUser.uid}/${YEAR}${SEMESTER}`)
             .once("value", function (snapshot) {
                 if (!snapshot.val()) return;
                 const { course = {}, lastUpdate: remoteLastUpdate } = snapshot.val();
@@ -49,11 +52,16 @@ firebase.auth().onAuthStateChanged(function (user) {
                     Object.keys(course).sort().every((value, index) => value === Object.keys(selectedCourse).sort()[index])
                 const localLastUpdate = +localStorage.getItem("lastUpdate");
 
-                // sync: remote to local
-                if (!isSame && new Date(localLastUpdate) < new Date(remoteLastUpdate)) {
-                    Toast.fire({ text: "已從伺服器更新你的課表" });
-                    selectedCourse = course;
-                    save(false);
+                if (!isSame) {
+                    if (new Date(localLastUpdate) < new Date(remoteLastUpdate)) {
+                        // sync: remote to local
+                        Toast.fire({ text: "已從伺服器更新你的課表" });
+                        selectedCourse = course;
+                        save(false);
+                    } else {
+                        // sync: local to remote
+                        save();
+                    }
                 }
                 renderAllSelected();
             })
@@ -96,22 +104,26 @@ const totalCredits = () => Object.keys(selectedCourse).reduce((accu, id) => +cou
 let share = false;
 if (location.search.includes("share=")) {
     share = true;
-    document.querySelector(".sidebar").classList.add("is-hidden");
-    document.querySelector("#import").classList.remove("is-hidden");
+    hide(document.querySelector(".sidebar"));
+    hide(document.querySelector("#import"));
 }
 
-// Render timetable.
 Object.keys(TIME_MAPPING).forEach(period => {
-    const div = document.createElement("div");
-    div.textContent = `${period} / ${TIME_MAPPING[period]}`;
-    document.querySelector(".time-interval").appendChild(div);
-});
-
-Object.keys(TIME_MAPPING).forEach(period => {
+    const row = document.createElement("tr");
+    const time = document.createElement('th');
+    time.textContent = `${period}`;
+    if (period === "M" || period === "N" || period === "L")
+        time.classList.add('extra');
+    row.appendChild(time);
+    document.querySelector(".timetable tbody").appendChild(row);
     for (let day = 1; day <= 7; ++day) {
-        const div = document.createElement("div");
-        div.id = `${day}${period}`;
-        document.querySelector('.content').appendChild(div);
+        const block = document.createElement('td');
+        block.id = `${day}${period}`;
+        if (day === 6 || day === 7)
+            block.classList.add('weekend');
+        if (period === "M" || period === "N" || period === "L")
+            block.classList.add('extra');
+        row.appendChild(block);
     }
 });
 
@@ -161,8 +173,8 @@ function renderDepartment(department) {
             if (level === 1) {
                 if (elem.value === "全部開課單位") {
                     setFilter({ department: false, departmentId: -1 });
-                    selects[1].parentElement.classList.add('is-hidden');
-                    selects[2].parentElement.classList.add('is-hidden');
+                    hide(selects[1].parentElement);
+                    hide(selects[2].parentElement);
                     return;
                 }
                 currentValue = department[elem.value];
@@ -180,7 +192,7 @@ function renderDepartment(department) {
 
             selects.forEach(select =>
                 (+select.dataset.level > level + hasNextLevel) &&
-                select.parentElement.classList.add('is-hidden')
+                hide(select.parentElement)
             );
         }
     )
@@ -224,7 +236,7 @@ document.addEventListener("mouseover", function (event) {
 
 document.addEventListener("mouseout", function (event) {
     if (event.target.matches('.result .course, .result .course *')) {
-        document.querySelectorAll('.timetable>.content>[class="has-background-info-light"]')
+        document.querySelectorAll('.timetable .has-background-info-light')
             .forEach(elem => {
                 elem.className = '';
                 elem.firstElementChild?.classList.remove("has-background-danger", "has-text-white");
@@ -301,7 +313,7 @@ function save(remote = true) {
     localStorage.setItem("lastUpdate", +new Date());
 
     if (firebase.auth().currentUser && remote)
-        db.ref(`user/${firebase.auth().currentUser.uid}/`).set({
+        db.ref(`user/${firebase.auth().currentUser.uid}/${YEAR}${SEMESTER}`).set({
             course: selectedCourse,
             lastUpdate: lastUpdate
         });

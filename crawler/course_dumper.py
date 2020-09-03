@@ -34,7 +34,7 @@ uuid_map = json.load(open("department_index.json"))
 data = json.load(open("origin.json"))
 
 course_data = {}
-missing_dep = []
+# missing_dep = []
 types = {'選修': 0, '必修': 1, '通識': 2, '體育': 3, '軍訓': 4, '外語': 5}
 
 for uuid in data:
@@ -46,8 +46,8 @@ for uuid in data:
         for course_id in data[uuid][block]:
             course = data[uuid][block][course_id]
 
-            if uuid not in uuid_map:
-                missing_dep.append(course["cos_id"])
+            # if uuid not in uuid_map:
+            #     missing_dep.append(course["cos_id"])
             if uuid not in uuid_map and course["cos_id"] in course_data:
                 continue
 
@@ -71,8 +71,8 @@ for uuid in data:
                 }
 
 
-for cid in missing_dep:
-    print(cid, course_data[cid]['dep'], course_data[cid]['name'])
+# for cid in missing_dep:
+#     print(cid, course_data[cid]['dep'], course_data[cid]['name'])
 
 with open(f"../course-data/{YEAR}{SEMESTER}-data.json", "w") as f:
     json.dump(course_data, f, separators=(',', ':'))
