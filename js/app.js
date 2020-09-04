@@ -1,3 +1,6 @@
+if (location.search.includes("__debug__"))
+    window.onerror = (...arg) => document.querySelector("footer").textContent = arg;
+
 const Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
@@ -29,24 +32,26 @@ firebase.analytics?.();
 
 const db = firebase.database();
 
-window.addEventListener("message", function (event) {
-    if (event.origin === OAUTH_ORIGIN) {
-        const { data } = event;
-        firebase.auth().signInWithCustomToken(data.token).then(user => {
-            if (user.additionalUserInfo.isNewUser) {
-                firebase.auth().currentUser.updateEmail(data.email);
-                save();
-            }
-        })
-    }
-}, false);
+const loginInfo = Object.fromEntries(new URLSearchParams(location.search));
+if (loginInfo.token) {
+    document.getElementById("user-status").textContent = "...";
+    document.getElementById("user-status").onclick = undefined;
+
+    window.history.replaceState({}, '', APP_URL);
+    firebase.auth().signInWithCustomToken(loginInfo.token).then(user => {
+        if (user.additionalUserInfo.isNewUser) {
+            firebase.auth().currentUser.updateEmail(loginInfo.email);
+            save();
+        }
+    })
+}
 
 
 db.ref("news/").orderByKey().limitToLast(1).on("value", function (snapshot) {
     const lastReadNews = +localStorage.getItem("lastReadNews");
     const value = snapshot.val();
     const [id, news] = Object.entries(value)[0];
-    if (id > lastReadNews) 
+    if (id > lastReadNews)
         Swal.fire({ title: news.title, html: news.content, icon: 'info' })
 
     localStorage.setItem("lastReadNews", id);
@@ -82,9 +87,7 @@ firebase.auth().onAuthStateChanged(function (user) {
 });
 
 const login = () => {
-    document.getElementById("user-status").textContent = "...";
-    document.getElementById("user-status").onclick = undefined;
-    window.open(`https://id.nctu.edu.tw/o/authorize/?client_id=${OAUTH_CLIENT_ID}&response_type=code&scope=profile`)
+    location.replace(`https://id.nctu.edu.tw/o/authorize/?client_id=${OAUTH_CLIENT_ID}&response_type=code&scope=profile`);
 }
 
 // Safari sucks.
