@@ -121,7 +121,7 @@ let share = false;
 if (location.search.includes("share=")) {
     share = true;
     hide(document.querySelector(".sidebar"));
-    hide(document.querySelector("#import"));
+    show(document.querySelector("#import"));
 }
 
 Object.keys(TIME_MAPPING).forEach(period => {
