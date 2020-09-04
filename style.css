@@ -57,12 +57,72 @@ footer {
 }
 
 .timetable td {
+    position: relative;
     box-shadow: inset 1px 1px 1px #ECEFF1;
     padding: 0;
     height: 64px;
 }
 
+.find-empty-overlay {
+    transition: .5s ease;
+    cursor: pointer;
+    height: 64px;
+    width: 100%;
+    opacity: 0;
+}
+
+.find-empty-overlay.selected {
+    opacity: 1;
+}
+
+.find-empty-overlay:hover {
+    opacity: 1;
+}
+
+.find-empty-overlay .vertical {
+    transition: all .25s ease-in-out;
+    position: absolute;
+    background-color: #AAA;
+    width: 5px;
+    height: 30px;
+    left: 50%;
+    margin-left: -2.5px;
+    top: 50%;
+    margin-top: -15px;
+}
+
+.find-empty-overlay .horizontal {
+    transition: all .25s ease-in-out;
+    position: absolute;
+    background-color: #AAA;
+    width: 30px;
+    height: 5px;
+    left: 50%;
+    margin-left: -15px;
+    top: 50%;
+    margin-top: -2.5px;
+    opacity: 1;
+}
+
+.find-empty-overlay.selected .vertical {
+    background-color: hsl(48, 100%, 87%);
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    left: 0;
+    top: 0;
+
+}
+
+.find-empty-overlay.selected .horizontal {
+    opacity: 0;
+}
+
 .timetable .period {
+    z-index: 5;
+    position: absolute;
+    top: 0;
+    left: 0;
     cursor: pointer;
     display: block;
     background-color: #f9f9f9;
@@ -71,6 +131,15 @@ footer {
     height: 100%;
     -webkit-transition: .2s ease box-shadow, .2s ease transform;
     transition: .2s ease box-shadow, .2s ease transform;
+}
+
+.timetable .period.preview {
+    z-index: 3;
+    box-shadow: 0 20px 30px 0 rgba(238, 142, 188, 0.3);
+    animation-name: pulse;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite ;
+    animation-duration: 1s;
 }
 
 .timetable .period:hover {
@@ -89,6 +158,21 @@ footer {
     text-overflow: ellipsis;
     word-wrap: break-word;
 }
+
+@keyframes pulse {
+    from {
+      transform: scale3d(1, 1, 1);
+    }
+  
+    50% {
+      transform: scale3d(1.05, 1.05, 1.05);
+    }
+  
+    to {
+      transform: scale3d(1, 1, 1);
+    }
+  }
+
 
 .course-panel {
     position: relative;

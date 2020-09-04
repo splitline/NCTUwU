@@ -1,7 +1,8 @@
 import json
 import requests
+import re
 
-FETCH = False
+FETCH = True
 
 YEAR = 109
 SEMESTER = 1
@@ -37,6 +38,17 @@ course_data = {}
 # missing_dep = []
 types = {'選修': 0, '必修': 1, '通識': 2, '體育': 3, '軍訓': 4, '外語': 5}
 
+
+def parse_time(time_code):
+    time_list = re.findall("[1-7][A-Z]+", time_code)
+    result = []
+    for code in time_list:
+        for char in code[1:]:
+            result.append(f"{code[0]}{char}")
+   
+    return result
+
+
 for uuid in data:
     language = data[uuid]["language"]
     brief = data[uuid]["brief"]
@@ -46,22 +58,22 @@ for uuid in data:
         for course_id in data[uuid][block]:
             course = data[uuid][block][course_id]
 
-            # if uuid not in uuid_map:
-            #     missing_dep.append(course["cos_id"])
             if uuid not in uuid_map and course["cos_id"] in course_data:
                 continue
 
             dep_id = uuid_map.get(uuid, None)
-            brief_code = list(brief[course_id].keys())[0]
             if course["cos_id"] in course_data and \
                     dep_id != None and \
                     dep_id not in course_data[course["cos_id"]]['dep']:
                 course_data[course["cos_id"]]['dep'].append(dep_id)
             else:
+                brief_code = list(brief[course_id].keys())[0]
+                classroom = course["cos_time"].split("-")[1] if course["cos_time"].strip() != "" else ""
                 course_data[course["cos_id"]] = {
                     "id": course["cos_id"],
                     "name": course["cos_cname"],
-                    "time": course["cos_time"],
+                    "time": parse_time(course["cos_time"]),
+                    "classroom": classroom,
                     "credit": course["cos_credit"],
                     "teacher": course["teacher"],
                     "dep": [] if dep_id == None else [dep_id],
@@ -70,9 +82,6 @@ for uuid in data:
                     "brief_code": [] if brief_code == "" else brief_code.split(",")
                 }
 
-
-# for cid in missing_dep:
-#     print(cid, course_data[cid]['dep'], course_data[cid]['name'])
 
 with open(f"../course-data/{YEAR}{SEMESTER}-data.json", "w") as f:
     json.dump(course_data, f, separators=(',', ':'))
