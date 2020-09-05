@@ -479,13 +479,14 @@ function renderPeriodBlock(course, preview = false) {
     text.textContent = course.name;
     periodBlock.appendChild(text);
     periods.forEach(period => {
-        const clone = document.importNode(periodBlock, true);
-        const previewBlock = document.getElementById(period).querySelector(".period.preview");
-        if(previewBlock && previewBlock.dataset.id === course.id) {
-            previewBlock.classList.remove("preview");
-            return;
+        const blank = document.getElementById(period);
+        const existBlock = blank.querySelector(".period");
+        if (existBlock && existBlock.dataset.id === course.id) {
+            existBlock.classList.remove("preview");
+        } else if (!blank.querySelector(".period:not(.preview)")) {
+            const clone = document.importNode(periodBlock, true);
+            blank.appendChild(clone)
         }
-        document.getElementById(period).appendChild(clone)
     });
 }
 
